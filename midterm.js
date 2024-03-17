@@ -20,12 +20,38 @@ class Person {
 
 class Receptionist extends Person {
   roomBooking = [];
-  constructor(name, address, email, phone, accountType) {
+  totalRoomBooked = 0;
+  constructor(name, address, email, phone, accountType,totalRoomBooked) {
     super(name, address, email, phone, accountType);
+    this.totalRoomBooked = totalRoomBooked;
   }
-  createBooking() {}
-  toString() {
-    return `${super.toString()}`;
+  addRoomBooking(roomBooking) {
+    this.roomBooking.push(roomBooking);
+  }
+  createBooking(reservationNumber, startDate, durationDays, room,name) {
+    //check availible
+    //const isRoomAvailable = Room.isRoomAvailable(room,startDate,durationDays)
+    if (room.isRoomAvailable()) {
+      const roomBooking = new RoomBooking(
+        reservationNumber,
+        startDate,
+        durationDays,
+        room,name
+      );
+      this.addRoomBooking(roomBooking);
+      this.totalRoomBooked++;
+      return roomBooking;
+    }
+  }
+  toStringDetail() {
+    let inBooking = "";
+    for (let i = 0; i < this.roomBooking.length; i++) {
+      inBooking += "\t" + `${this.roomBooking[i].toStringReceptionist()} ` + "\n";
+    }
+    return `${super.toString()}\n ${inBooking}`;
+  }
+  toString(){
+    return super.toString()
   }
 }
 
@@ -39,23 +65,34 @@ class Guest extends Person {
   addRoomBooking(roomBooking) {
     this.roomBooking.push(roomBooking);
   }
-  createBooking(reservationNumber, startDate, durationDays,room) {
+  createBooking(reservationNumber, startDate, durationDays, room,name) {
     //check availible
     //const isRoomAvailable = Room.isRoomAvailable(room,startDate,durationDays)
-    if(room.isRoomAvailable()){
-      const booking = new RoomBooking(reservationNumber,startDate,durationDays,room)
-      this.addRoomBooking(booking);
-      this.totalRoomBooked++
-      return booking;
+    if (room.isRoomAvailable()) {
+      const roomBooking = new RoomBooking(
+        reservationNumber,
+        startDate,
+        durationDays,
+        room,name
+      );
+      this.addRoomBooking(roomBooking);
+      this.totalRoomBooked++;
+      return roomBooking;
+    }
   }
-}
-toString() {
-  let inBooking = "";
-  for(let i = 0; i< this.roomBooking.length;i++){
-    inBooking += "\t" + `${this.roomBooking[i].toString()} ` + "\n" ;
+  toStringDetail() {
+    let inBooking = "";
+    for (let i = 0; i < this.roomBooking.length; i++) {
+      inBooking += "\t" + `${this.roomBooking[i].toStringGuest()} ` + "\n";
+    }
+    return `${super.toString()} Total Booking: ${
+      this.totalRoomBooked
+    } \n ${inBooking}`;
   }
-  return `${super.toString()} Total Booking: ${this.totalRoomBooked} \n ${inBooking}`;
-}
+  toString(){
+    return super.toString()
+  }
+
 }
 class Account {
   username = "";
@@ -80,6 +117,9 @@ class Account {
     } else {
       return false;
     }
+  }
+  toString() {
+    return `Username : ${this.username} Password : ${this.password} Status : ${this.status}`;
   }
 }
 //room hotel
@@ -132,7 +172,7 @@ class Room {
     }
   }
   toString() {
-    return `Room [${this.roomNumber}  style ${this.style}\t status ${this.status}\t price ${this.roomPrice}]`;
+    return `Room [${this.roomNumber}  style : ${this.style}  status : ${this.status} price : ${this.roomPrice}]`;
   }
 }
 
@@ -152,15 +192,15 @@ class RoomBooking {
     this.status = status;
     this.createdBy = createdBy;
   }
-  createBooking(reservationNumber, startDate, durationDays, guest,room) {
+  createBooking(reservationNumber, startDate, durationDays, guest, room) {
 
   }
-  toString() {
-    return ` \n Detail: [Reservation Number: ${this.reservationNumber}, Check in date  ${
-      this.startDate
-    }, stay for  ${this.durationDays} night  ${this.status}, booked by: ${
-      this.createBy
-    }]`;
+  toStringGuest() {
+    return ` \n Detail: [Reservation Number: ${this.reservationNumber}, Check in date  ${this.startDate}, stay for  ${this.durationDays} night  ${this.status}, booked by: ${this.createdBy}]`;
+  }
+
+  toStringReceptionist() {
+    return ` \n Detail: [Reservation Number: ${this.reservationNumber}, Check in date  ${this.startDate}, stay for  ${this.durationDays} night  ${this.status}, booked for: ${this.createdBy}]`;
   }
 }
 class Notification {
@@ -264,15 +304,24 @@ const main = () => {
   hotel.addnewRooms(room3);
   hotel.addnewRooms(room4);
 
- bob.createBooking("0521564546","11/03/2568",5,room4)
- bob.createBooking("0521564546","11/03/2568",5,room4)
 
-  console.log(alice.toString());
+  
+
+  bob.createBooking("0521564546", "16/03/2024", 3, room4,"Bob");
+  catherine.createBooking("0521564546", "19/03/2024", 5, room3, "Alice ");
+
+
+ 
+
   console.log(bob.toString());
-  // console.log(catherine.toString());
-  // console.log(david.toString());
-  //console.log(room1.createRoom("R05",RoomStyle.DBPV, RoomStatus.AVAILABLE, 100000));
+  console.log(alice.toString());
+  console.log(catherine.toString());
+  console.log(david.toString());
+
   console.log(hotel.toString());
+
+  console.log(bob.toStringDetail());
+  console.log(catherine.toStringDetail());
 };
 
 main();
